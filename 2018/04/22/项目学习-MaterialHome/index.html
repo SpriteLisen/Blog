@@ -17,27 +17,27 @@
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+    var CONFIG = {"hostname":"spritelisen.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
   <meta name="description" content="最近学习了开源项目 MaterialHome, 其中关乎到了非常多的 MD 风格样式编码及Java的一些编码技巧, 学习之后颇有感触, 写下一篇博客记录自己所学知识.">
 <meta property="og:type" content="article">
 <meta property="og:title" content="MaterialHome 项目学习历程">
-<meta property="og:url" content="http://yoursite.com/2018/04/22/%E9%A1%B9%E7%9B%AE%E5%AD%A6%E4%B9%A0-MaterialHome/index.html">
+<meta property="og:url" content="https://spritelisen.github.io/Blog/2018/04/22/%E9%A1%B9%E7%9B%AE%E5%AD%A6%E4%B9%A0-MaterialHome/index.html">
 <meta property="og:site_name" content="往后余生">
 <meta property="og:description" content="最近学习了开源项目 MaterialHome, 其中关乎到了非常多的 MD 风格样式编码及Java的一些编码技巧, 学习之后颇有感触, 写下一篇博客记录自己所学知识.">
 <meta property="og:locale">
-<meta property="og:image" content="http://yoursite.com/2018/04/22/%E9%A1%B9%E7%9B%AE%E5%AD%A6%E4%B9%A0-MaterialHome/%E9%A1%B9%E7%9B%AE%E5%AD%A6%E4%B9%A0-MaterialHome%5CSplash%5Cparticle.gif">
-<meta property="og:image" content="http://yoursite.com/2018/04/22/%E9%A1%B9%E7%9B%AE%E5%AD%A6%E4%B9%A0-MaterialHome/%E9%A1%B9%E7%9B%AE%E5%AD%A6%E4%B9%A0-MaterialHome%5CBookDetail%5Cdetail.png">
+<meta property="og:image" content="https://spritelisen.github.io/Blog/2018/04/22/%E9%A1%B9%E7%9B%AE%E5%AD%A6%E4%B9%A0-MaterialHome/%E9%A1%B9%E7%9B%AE%E5%AD%A6%E4%B9%A0-MaterialHome%5CSplash%5Cparticle.gif">
+<meta property="og:image" content="https://spritelisen.github.io/Blog/2018/04/22/%E9%A1%B9%E7%9B%AE%E5%AD%A6%E4%B9%A0-MaterialHome/%E9%A1%B9%E7%9B%AE%E5%AD%A6%E4%B9%A0-MaterialHome%5CBookDetail%5Cdetail.png">
 <meta property="article:published_time" content="2018-04-22T13:49:00.000Z">
 <meta property="article:modified_time" content="2018-11-25T00:58:06.000Z">
 <meta property="article:author" content="Lisen">
 <meta property="article:tag" content="Android">
 <meta property="article:tag" content="项目学习">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://yoursite.com/2018/04/22/%E9%A1%B9%E7%9B%AE%E5%AD%A6%E4%B9%A0-MaterialHome/%E9%A1%B9%E7%9B%AE%E5%AD%A6%E4%B9%A0-MaterialHome%5CSplash%5Cparticle.gif">
+<meta name="twitter:image" content="https://spritelisen.github.io/Blog/2018/04/22/%E9%A1%B9%E7%9B%AE%E5%AD%A6%E4%B9%A0-MaterialHome/%E9%A1%B9%E7%9B%AE%E5%AD%A6%E4%B9%A0-MaterialHome%5CSplash%5Cparticle.gif">
 
-<link rel="canonical" href="http://yoursite.com/2018/04/22/%E9%A1%B9%E7%9B%AE%E5%AD%A6%E4%B9%A0-MaterialHome/">
+<link rel="canonical" href="https://spritelisen.github.io/Blog/2018/04/22/%E9%A1%B9%E7%9B%AE%E5%AD%A6%E4%B9%A0-MaterialHome/">
 
 
 <script id="page-configurations">
@@ -155,7 +155,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/04/22/%E9%A1%B9%E7%9B%AE%E5%AD%A6%E4%B9%A0-MaterialHome/">
+    <link itemprop="mainEntityOfPage" href="https://spritelisen.github.io/Blog/2018/04/22/%E9%A1%B9%E7%9B%AE%E5%AD%A6%E4%B9%A0-MaterialHome/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -226,7 +226,7 @@
 <li>首页采用 <strong><a target="_blank" rel="noopener" href="https://github.com/JeasonWong/Particle">ParticleView</a></strong> 进行动画渲染, 该View实现了炫酷的粒子动画, 符合Material设计规范, 使得首页炫酷而不失特色.</li>
 </ul>
 <blockquote>
-<p>动画展示:<br>    <img src="/2018/04/22/%E9%A1%B9%E7%9B%AE%E5%AD%A6%E4%B9%A0-MaterialHome/%E9%A1%B9%E7%9B%AE%E5%AD%A6%E4%B9%A0-MaterialHome%5CSplash%5Cparticle.gif" alt="首屏动画效果展示"></p>
+<p>动画展示:<br>    <img src="/Blog/2018/04/22/%E9%A1%B9%E7%9B%AE%E5%AD%A6%E4%B9%A0-MaterialHome/%E9%A1%B9%E7%9B%AE%E5%AD%A6%E4%B9%A0-MaterialHome%5CSplash%5Cparticle.gif" alt="首屏动画效果展示"></p>
 </blockquote>
 <p>原先我们在首页展现固定秒数后调转到别的Activity中, 采用的设计是使用Handler类中的postDelayed(Runable r, long delayMillis)方法来实现延迟调转, 如果采用主页显示ParticleView的方式, 则只需要监听ParticleView的动画结束即可, 在xml中声明动画的时长, 然后在动画结束的时候进行调转即可.</p>
 <blockquote>
@@ -255,7 +255,7 @@
 <ul>
 <li>在项目的图书详情界面, 顶部显示了图书的封面图片, 作者为了界面简洁优雅, 使用了虚化的封面作为底部背景, 然后在中心位置显示原本的封面图片, 有点类似网易云音乐的播放界面, 也是采用了虚化图片作为背景的设计, 这里用到了一个三方库 <strong><a target="_blank" rel="noopener" href="https://github.com/PomepuyN/BlurEffectForAndroidDesign">BlurEffect</a></strong>.</li>
 </ul>
-<p><span class="red">展现效果如下:</span><br>    <img src="/2018/04/22/%E9%A1%B9%E7%9B%AE%E5%AD%A6%E4%B9%A0-MaterialHome/%E9%A1%B9%E7%9B%AE%E5%AD%A6%E4%B9%A0-MaterialHome%5CBookDetail%5Cdetail.png" alt="虚化图片样式展示"></p>
+<p><span class="red">展现效果如下:</span><br>    <img src="/Blog/2018/04/22/%E9%A1%B9%E7%9B%AE%E5%AD%A6%E4%B9%A0-MaterialHome/%E9%A1%B9%E7%9B%AE%E5%AD%A6%E4%B9%A0-MaterialHome%5CBookDetail%5Cdetail.png" alt="虚化图片样式展示"></p>
 <p>可以看见顶部的封面图片有个原图虚化的背景, 看上去是不是显得高大尚了呀?</p>
 <blockquote>
 <p>使用方法也及其简单, 具体如下:</p>
