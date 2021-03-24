@@ -27,18 +27,12 @@
 <meta property="og:site_name" content="往后余生">
 <meta property="og:description" content="最近在帮朋友解决一个 so 文件问题的时候, 发现了一些在 Android 中使用 so 文件不注意的问题, 特此记录一下.">
 <meta property="og:locale">
-<meta property="og:image" content="http://yoursite.com/2018/08/11/JNI-so%E6%96%87%E4%BB%B6%E5%AD%98%E5%9C%A8-%E4%BD%86%E6%97%A0%E6%B3%95%E8%B0%83%E7%94%A8Native%E6%96%B9%E6%B3%95%E7%9A%84%E4%BA%A7%E7%94%9F%E5%8E%9F%E5%9B%A0%E5%8F%8A%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/JNI-so文件存在-但无法调用Native方法的产生原因及解决方案/so文件保存路径.png">
-<meta property="og:image" content="http://yoursite.com/2018/08/11/JNI-so%E6%96%87%E4%BB%B6%E5%AD%98%E5%9C%A8-%E4%BD%86%E6%97%A0%E6%B3%95%E8%B0%83%E7%94%A8Native%E6%96%B9%E6%B3%95%E7%9A%84%E4%BA%A7%E7%94%9F%E5%8E%9F%E5%9B%A0%E5%8F%8A%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/JNI-so文件存在-但无法调用Native方法的产生原因及解决方案/so文件load失败异常.png">
-<meta property="og:image" content="http://yoursite.com/2018/08/11/JNI-so%E6%96%87%E4%BB%B6%E5%AD%98%E5%9C%A8-%E4%BD%86%E6%97%A0%E6%B3%95%E8%B0%83%E7%94%A8Native%E6%96%B9%E6%B3%95%E7%9A%84%E4%BA%A7%E7%94%9F%E5%8E%9F%E5%9B%A0%E5%8F%8A%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/JNI-so文件存在-但无法调用Native方法的产生原因及解决方案/so文件合计.png">
-<meta property="og:image" content="http://yoursite.com/2018/08/11/JNI-so%E6%96%87%E4%BB%B6%E5%AD%98%E5%9C%A8-%E4%BD%86%E6%97%A0%E6%B3%95%E8%B0%83%E7%94%A8Native%E6%96%B9%E6%B3%95%E7%9A%84%E4%BA%A7%E7%94%9F%E5%8E%9F%E5%9B%A0%E5%8F%8A%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/JNI-so文件存在-但无法调用Native方法的产生原因及解决方案/实际释放的so文件目录情况.png">
-<meta property="og:image" content="http://yoursite.com/2018/08/11/JNI-so%E6%96%87%E4%BB%B6%E5%AD%98%E5%9C%A8-%E4%BD%86%E6%97%A0%E6%B3%95%E8%B0%83%E7%94%A8Native%E6%96%B9%E6%B3%95%E7%9A%84%E4%BA%A7%E7%94%9F%E5%8E%9F%E5%9B%A0%E5%8F%8A%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/JNI-so文件存在-但无法调用Native方法的产生原因及解决方案/aar文件所支持的CPU架构.png">
 <meta property="article:published_time" content="2018-08-11T15:50:10.000Z">
 <meta property="article:modified_time" content="2018-11-25T01:05:08.000Z">
 <meta property="article:author" content="Lisen">
 <meta property="article:tag" content="Android">
 <meta property="article:tag" content="JNI">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://yoursite.com/2018/08/11/JNI-so%E6%96%87%E4%BB%B6%E5%AD%98%E5%9C%A8-%E4%BD%86%E6%97%A0%E6%B3%95%E8%B0%83%E7%94%A8Native%E6%96%B9%E6%B3%95%E7%9A%84%E4%BA%A7%E7%94%9F%E5%8E%9F%E5%9B%A0%E5%8F%8A%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/JNI-so文件存在-但无法调用Native方法的产生原因及解决方案/so文件保存路径.png">
 
 <link rel="canonical" href="http://yoursite.com/2018/08/11/JNI-so%E6%96%87%E4%BB%B6%E5%AD%98%E5%9C%A8-%E4%BD%86%E6%97%A0%E6%B3%95%E8%B0%83%E7%94%A8Native%E6%96%B9%E6%B3%95%E7%9A%84%E4%BA%A7%E7%94%9F%E5%8E%9F%E5%9B%A0%E5%8F%8A%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/">
 
@@ -216,21 +210,22 @@
 
       
         <p>最近在帮朋友解决一个 so 文件问题的时候, 发现了一些在 Android 中使用 so 文件不注意的问题, 特此记录一下.</p>
-<a id="more"></a>
+<span id="more"></span>
+
 <p>&emsp;&emsp;在 Android 中, 我们的项目经常会调用一些 so 文件来解决一些 Java 中无法解决的问题, 例如在连接串口时, 我们就需要调用连接串口的 so 文件, 一般我们会将 so 文件放在项目 <strong><font color="red">app/libs</font></strong> 目录下, 并根据不同的 CPU 架构来提供不同的 so 文件, 例如下图 :</p>
-<center><img src="/2018/08/11/JNI-so%E6%96%87%E4%BB%B6%E5%AD%98%E5%9C%A8-%E4%BD%86%E6%97%A0%E6%B3%95%E8%B0%83%E7%94%A8Native%E6%96%B9%E6%B3%95%E7%9A%84%E4%BA%A7%E7%94%9F%E5%8E%9F%E5%9B%A0%E5%8F%8A%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/JNI-so文件存在-但无法调用Native方法的产生原因及解决方案/so文件保存路径.png" alt="so文件目录放置"></center>
+<center>![so文件目录放置](JNI-so文件存在-但无法调用Native方法的产生原因及解决方案/so文件保存路径.png)</center>
 
 <p>&emsp;&emsp;目前常见的 CPU 架构有 :<br>&emsp;&emsp;<strong><font color="red">armeabi, armeabi-v7a, armeabi-v8a, mips, mips64, x86, x86_64 七种, 以后或将更多</font></strong></p>
 <p>&emsp;&emsp;也许你经常遇见将 so 文件放进了对应的架构文件夹中了, 但是却报出了各种各样奇怪的异常, 例如下图 :</p>
-<center><img src="/2018/08/11/JNI-so%E6%96%87%E4%BB%B6%E5%AD%98%E5%9C%A8-%E4%BD%86%E6%97%A0%E6%B3%95%E8%B0%83%E7%94%A8Native%E6%96%B9%E6%B3%95%E7%9A%84%E4%BA%A7%E7%94%9F%E5%8E%9F%E5%9B%A0%E5%8F%8A%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/JNI-so文件存在-但无法调用Native方法的产生原因及解决方案/so文件load失败异常.png" alt="so文件load失败异常"></center>
+<center>![so文件load失败异常](JNI-so文件存在-但无法调用Native方法的产生原因及解决方案/so文件load失败异常.png)</center>
 
 <p>&emsp;&emsp;异常如下 :<br>&emsp;&emsp;<strong><font color="red">java.lang.UnsatisfiedLinkError…….couldn’t find “xxx.so”</font></strong> 或者 <strong><font color="red">java.lang.UnsatisfiedLinkError: No implementation found for……</font></strong></p>
 <p>&emsp;&emsp;这时你肯定会想, WTF??? 我明明把对应的 so 文件放进去了啊, 为啥找不到? 为啥调用不到? 搞什么灰机???</p>
 <p>&emsp;&emsp;这时仔细观察一下, 原 jni 的架构文件夹下有这么多个 so 文件 :</p>
-<center><img src="/2018/08/11/JNI-so%E6%96%87%E4%BB%B6%E5%AD%98%E5%9C%A8-%E4%BD%86%E6%97%A0%E6%B3%95%E8%B0%83%E7%94%A8Native%E6%96%B9%E6%B3%95%E7%9A%84%E4%BA%A7%E7%94%9F%E5%8E%9F%E5%9B%A0%E5%8F%8A%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/JNI-so文件存在-但无法调用Native方法的产生原因及解决方案/so文件合计.png" alt="so文件合计"></center>
+<center>![so文件合计](JNI-so文件存在-但无法调用Native方法的产生原因及解决方案/so文件合计.png)</center>
 
 <p>&emsp;&emsp;当你用文件管理器打开APK安装目录下所释放的文件目录下的 so 文件是这样子的 :</p>
-<center><img src="/2018/08/11/JNI-so%E6%96%87%E4%BB%B6%E5%AD%98%E5%9C%A8-%E4%BD%86%E6%97%A0%E6%B3%95%E8%B0%83%E7%94%A8Native%E6%96%B9%E6%B3%95%E7%9A%84%E4%BA%A7%E7%94%9F%E5%8E%9F%E5%9B%A0%E5%8F%8A%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/JNI-so文件存在-但无法调用Native方法的产生原因及解决方案/实际释放的so文件目录情况.png" alt="实际释放的so文件目录情况"></center>
+<center>![实际释放的so文件目录情况](JNI-so文件存在-但无法调用Native方法的产生原因及解决方案/实际释放的so文件目录情况.png)</center>
 
 <p>&emsp;&emsp;对比一下你会发现, 原本项目中有 <font color="red"><strong>7</strong></font> 个 so 文件, 但是实际上安装后的 APK 却只有 <font color="red"><strong>3</strong></font> 个 so 文件, 这是为什么呢?</p>
 <p>&emsp;&emsp;<strong>这种情况一般有以下几种可能性 :</strong></p>
@@ -243,10 +238,12 @@
 <p>&emsp;&emsp;我们着重讲解 <span class="red-bold">第四种</span> 情况的产生原因及解决方案</p>
 <p>&emsp;&emsp;<strong>产生原因 :</strong><br>&emsp;&emsp;由于引用了多个 Module 和 aar 文件, 并且他们都存在自己所依赖的 so 文件, 这个时候可能<font color="red">主项目中的 libs 目录下存在很多套架构的 so 文件, 但是 Module 和 aar 文件的 so 文件所支持架构数量却低于主项目所支持的架构数量</font>.<br>&emsp;&emsp;此时就会导致一种问题出现, <font color="red">主项目所支持的 CPU 架构, Module 和 aar 文件中的 so 文件并不一定支持</font>, 这就导致了前面的问题出现, 在<font color="red">安装后的 APK 所释放出来的 so 文件的数量与预计的数量不匹配</font>, 这个时候<font color="red">不支持当前 CPU 架构的 so 文件将不会被释放</font>, 这就<font color="red">导致了部分 so 文件的缺失</font>, 当 APP 运行到缺失 so 文件的功能时, 就会发生异常导致闪退, 因为压根就找不到对应的 so 文件.</p>
 <p>&emsp;&emsp;<strong>解决方案 :</strong><br>&emsp;&emsp;查看自己项目所引用的 Module 和 aar 文件中的 so 文件支持那种架构的 CPU, 比方说某个 aar 文件的 so 文件只支持以下架构 :</p>
-<center><img src="/2018/08/11/JNI-so%E6%96%87%E4%BB%B6%E5%AD%98%E5%9C%A8-%E4%BD%86%E6%97%A0%E6%B3%95%E8%B0%83%E7%94%A8Native%E6%96%B9%E6%B3%95%E7%9A%84%E4%BA%A7%E7%94%9F%E5%8E%9F%E5%9B%A0%E5%8F%8A%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/JNI-so文件存在-但无法调用Native方法的产生原因及解决方案/aar文件所支持的CPU架构.png" alt="aar文件所支持的CPU架构"></center>
+<center>![aar文件所支持的CPU架构](JNI-so文件存在-但无法调用Native方法的产生原因及解决方案/aar文件所支持的CPU架构.png)</center>
 
 <p>&emsp;&emsp;但是自己主项目中的 so 文件却支持多种 CPU 架构, 并且其中包含了该 aar 文件中所支持的这种架构.</p>
-<p>&emsp;&emsp;此时我们可以在 <font color="red">app/build.gradle</font> 文件中加入 ndk 的对应配置, 来限制住只使用哪种 CPU 架构的 so 文件, 具体配置如下 :<br><figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">android &#123;</span><br><span class="line">	defaultConfig &#123;</span><br><span class="line">        ndk &#123;</span><br><span class="line">            abiFilters <span class="string">"armeabi"</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>&emsp;&emsp;此时我们可以在 <font color="red">app/build.gradle</font> 文件中加入 ndk 的对应配置, 来限制住只使用哪种 CPU 架构的 so 文件, 具体配置如下 :</p>
+<figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">android &#123;</span><br><span class="line">	defaultConfig &#123;</span><br><span class="line">        ndk &#123;</span><br><span class="line">            abiFilters <span class="string">&quot;armeabi&quot;</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 <p>&emsp;&emsp;如果你的 aar 文件中的 so 文件和主项目中的 so 文件支持更多 CPU 架构的话, 你也可以将支持的 CPU 架构都配置进来.</p>
 <p>&emsp;&emsp;也许这么修改后你发现你的 so 文件被正确释放出来了, 但是还是抛出了找不到对应 so 文件的异常, 那么你可以尝试将 <font color="red">targetSdkVersion 降到23以下</font>.</p>
 <p>&emsp;&emsp;<font color="red">这么做的原因是因为 :</font><br>&emsp;&emsp;在 <font color="red">Android 6.0</font> 以上的系统中, 对于 so 文件中 <font color="red">has text relocations</font> 这种错误级别由之前的 <font color="red">warning 级别</font>修改成了 <font color="red">error 级别</font>, 所以直接导致了该 so 文件在 <font color="red">Android 6.0 以上的版本中无法进行加载</font>, 所以即便你释放了对应的 so 文件, 你也无法进行加载并供 Java 去调用.</p>

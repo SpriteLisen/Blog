@@ -210,12 +210,13 @@
 
       
         <p>最近在做项目的时候出现了一个问题, 在 Android 8.0 的手机上无故报了 <span class="red-bold">Caused by: java.lang.IllegalStateException: Only fullscreen opaque activities can request orientation</span> 异常, 8.0 适配踩雷, 记录一下.</p>
-<a id="more"></a>
+<span id="more"></span>
+
 <ol>
 <li><h4 id="产生原因"><a href="#产生原因" class="headerlink" title="产生原因"></a>产生原因</h4></li>
 </ol>
-<p>&emsp;&emsp;最近在项目里引用了 <a href="https://github.com/r0adkll/Slidr" target="_blank" rel="noopener" title="Slidr">Slidr</a> 框架做了侧滑返回, 根据该框架要求, 需要把所有支持侧滑返回的 Activity 的主题都设置成如下样式 :</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"android:windowIsTranslucent"</span>&gt;</span>true<span class="tag">&lt;/<span class="name">item</span>&gt;</span>  </span><br><span class="line"><span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"android:windowBackground"</span>&gt;</span>@android:color/transparent<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;最近在项目里引用了 <a target="_blank" rel="noopener" href="https://github.com/r0adkll/Slidr" title="Slidr">Slidr</a> 框架做了侧滑返回, 根据该框架要求, 需要把所有支持侧滑返回的 Activity 的主题都设置成如下样式 :</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">&quot;android:windowIsTranslucent&quot;</span>&gt;</span>true<span class="tag">&lt;/<span class="name">item</span>&gt;</span>  </span><br><span class="line"><span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">&quot;android:windowBackground&quot;</span>&gt;</span>@android:color/transparent<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span><br></pre></td></tr></table></figure>
 <p>&emsp;&emsp;也就是要将侧滑的 Activity 设置成透明, 从此, 神坑开始了…</p>
 <p>&emsp;&emsp;当我很开心的运行项目, 立马就闪退了, 然后给我来了一个从来没见过的异常 : </p>
 <blockquote>
@@ -225,6 +226,7 @@
 <p>&emsp;&emsp;好了, 做了这么久安卓从来没听说过这一茬, 啥时候不是全屏的非透明 Activity 还不能设置方向了??</p>
 <p>&emsp;&emsp;这一顿搜索文章, 找到了结果…</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">在 Android <span class="number">8.0</span> (API <span class="number">26</span>) 上, 非全屏的不透明的 Activity 不允许设置屏幕方向, 谷歌</span><br><span class="line">在 <span class="number">8.1</span> 以上的版本就修复了这个问题, 并且去掉了这个限制, 所以在国内有部分手机系统还未进行</span><br><span class="line">更新的机型上依旧会存在该问题. </span><br><span class="line"></span><br><span class="line">已知有 华为, 小米等.</span><br></pre></td></tr></table></figure>
+
 <p>&emsp;&emsp;好了, 这下开心了, 作为国内的 Android 开发者, 啥坑都要踩…</p>
 <ol start="2">
 <li><h4 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h4></li>
