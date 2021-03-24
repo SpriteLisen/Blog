@@ -1,37 +1,456 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
 
 
-{% block title %}{{ page.title }} | {{ config.title }}{% endblock %}
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
 
-{% block page_class %}page-post-detail{% endblock %}
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="今天趁着有时间学习了 Dagger2, 听到网上各位大神都说 Dagger2 的好用与强大, 也学习一番, 看了 N 篇博客上手写 Demo, 期间爬了不少的坑, 记录一下学习心得.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Dagger2-爬坑记(一)">
+<meta property="og:url" content="http://yoursite.com/2018/12/19/Dagger2-%E7%88%AC%E5%9D%91%E8%AE%B0-%E4%B8%80/index.html">
+<meta property="og:site_name" content="往后余生">
+<meta property="og:description" content="今天趁着有时间学习了 Dagger2, 听到网上各位大神都说 Dagger2 的好用与强大, 也学习一番, 看了 N 篇博客上手写 Demo, 期间爬了不少的坑, 记录一下学习心得.">
+<meta property="og:locale">
+<meta property="article:published_time" content="2018-12-19T13:10:13.000Z">
+<meta property="article:modified_time" content="2018-12-27T08:30:00.000Z">
+<meta property="article:author" content="Lisen">
+<meta property="article:tag" content="Android">
+<meta property="article:tag" content="Dagger2">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yoursite.com/2018/12/19/Dagger2-%E7%88%AC%E5%9D%91%E8%AE%B0-%E4%B8%80/">
 
 
-{% block content %}
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
 
-  <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
+  <title>Dagger2-爬坑记(一) | 往后余生</title>
+  
 
-    <div class="post-spread">
-      {% if theme.jiathis %}
-        {% include '_partials/share/jiathis.swig' %}
-      {% elseif theme.baidushare %}
-        {% include '_partials/share/baidushare.swig' %}
-      {% elseif theme.add_this_id %}
-        {% include '_partials/share/add-this.swig' %}
-      {% elseif theme.duoshuo_shortname and theme.duoshuo_share %}
-        {% include '_partials/share/duoshuo_share.swig' %}
-      {% endif %}
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
     </div>
   </div>
 
-{% endblock %}
+  <div class="site-meta">
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">往后余生</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/12/19/Dagger2-%E7%88%AC%E5%9D%91%E8%AE%B0-%E4%B8%80/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Lisen">
+      <meta itemprop="description" content="是差点运气，可我一直在努力。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="往后余生">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Dagger2-爬坑记(一)
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2018-12-19 21:10:13" itemprop="dateCreated datePublished" datetime="2018-12-19T21:10:13+08:00">2018-12-19</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2018-12-27 16:30:00" itemprop="dateModified" datetime="2018-12-27T16:30:00+08:00">2018-12-27</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index"><span itemprop="name">Android</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/Dagger2/" itemprop="url" rel="index"><span itemprop="name">Dagger2</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>今天趁着有时间学习了 Dagger2, 听到网上各位大神都说 Dagger2 的好用与强大, 也学习一番, 看了 N 篇博客上手写 Demo, 期间爬了不少的坑, 记录一下学习心得.</p>
+<a id="more"></a>
+<ol>
+<li><h4 id="Dagger2-简介"><a href="#Dagger2-简介" class="headerlink" title="Dagger2 简介"></a>Dagger2 简介</h4></li>
+</ol>
+<p>&emsp;&emsp;Dagger2 是 Google 在 Square 公司开发的 Dagger 框架上做出的延伸, 现已完全交由 Google 来维护第二版.</p>
+<p>&emsp;&emsp;Square 公司旗下有目前大多数知名火爆的 Android 框架, 例如 Picasso, Dagger, Otto, Okhttp, Retrofit, Leakcanary 等等.</p>
+<p>&emsp;&emsp;Dagger 一代是采用反射的方式来实现 DI 的, 众所周知, 在 Android 平台上, Java 的反射运行效率低下, 加上 Android 9.0 对反射的一些列限制, 使得目前市面上以反射为基础的框架变的越来越少.</p>
+<p>&emsp;&emsp;Google 在 Square 的基础上对 Dagger 进行了重构, 改变了原来的反射, 采用 APT 的方式来提高其在 Android 平台上的运行效率. 这使得 Dagger2 愈加火爆, 正所谓 Google 出品, 必属精品.</p>
+<p>&emsp;&emsp;下面就来学习一下 Dagger 的部分使用方法.</p>
+<ol start="2">
+<li><h4 id="Gradle-配置引入"><a href="#Gradle-配置引入" class="headerlink" title="Gradle 配置引入"></a>Gradle 配置引入</h4></li>
+</ol>
+<p>&emsp;&emsp;Dagger2 的引入方式非常简单, 如下即可 :</p>
+<figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 基础类引入</span></span><br><span class="line">implementation <span class="string">'com.google.dagger:dagger:2.19'</span></span><br><span class="line"><span class="comment">// Java 注解 APT 处理器引入</span></span><br><span class="line">annotationProcessor <span class="string">'com.google.dagger:dagger-compiler:2.19'</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 若使用的是 Kotlin, 则使用 kapt 替换掉上面的 APT 即可</span></span><br><span class="line">kapt <span class="string">'com.google.dagger:dagger-compiler:2.19'</span></span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;至此 , Dagger2 的引入就已经完成了.</p>
+<ol start="3">
+<li><h4 id="Inject-与-Component-注解"><a href="#Inject-与-Component-注解" class="headerlink" title="@Inject 与 @Component 注解"></a>@Inject 与 @Component 注解</h4>&emsp;&emsp;在 Dagger2 中, 这两个注解是 <span class="red">成对出现</span> 的, 这二者少了其中任意一个, 都无法进行下一步工作, 会导致编译报错.</li>
+</ol>
+<p>&emsp;&emsp;<span class="red-bold">@Component 注解</span></p>
+<p>&emsp;&emsp;对于这个注解, 我的理解是, <span class="red">用来标记 DI 注入的目标位置</span>, 例如如下代码, 则表示该次 DI 是需要执行在 MainActivity 中的 :</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="class"><span class="keyword">interface</span> <span class="title">ActivityComponent</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 请帮我将 MainActivity 中标记了 @Inject 的属性进行 DI 操作</span></span><br><span class="line">    <span class="function"><span class="keyword">fun</span> <span class="title">inject</span><span class="params">(activity: <span class="type">MainActivity</span>)</span></span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p><span class="red-bold">注意: </span> 在此处有个坑, fun inject(activity: MainActivity) 方法中的 activity 参数一定要指定成注入的目标类, 如果指定成其他的, 编译不会报错, 但是无法进行该次注入.</p>
+</blockquote>
+<p>&emsp;&emsp;例如, 如果我们 <span class="red">将 MainActivity 修改成了 AppCompatActivity </span>, 方法签名变成了如下所示 :</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="class"><span class="keyword">interface</span> <span class="title">ActivityComponent</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 该种做法无法做到标记所有的 Activity, 会导致注入失败, 造成隐藏的空指针</span></span><br><span class="line">    <span class="function"><span class="keyword">fun</span> <span class="title">inject</span><span class="params">(activity: <span class="type">AppCompatActivity</span>)</span></span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>&emsp;&emsp;<span class="red">上面的代码会导致注入失败的原因是: 因为 Dagger2 必须强烈指定是在哪个类中执行的, 否则无法进行 APT 对应代码的生成, 如果写成父类的引用, 则无法生成该次代码. 导致注入失败.</span></p>
+</blockquote>
+<p>&emsp;&emsp;当我们写好基础的 Component 之后, 编译器会利用 APT 自动生成一个对应的类, 类名是在我们的 Component 类名前加上 ‘Dagger’, 使用方式如下 :</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MainActivity</span> : <span class="type">BaseActivity</span>&lt;<span class="type">MainPresenter</span>&gt;</span>() &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">onCreate</span><span class="params">(savedInstanceState: <span class="type">Bundle</span>?)</span></span> &#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 这行指定在当前类中使用该次注入</span></span><br><span class="line">        <span class="comment">// APT 生成的类名是原本的 ActivityComponent 前面加上 Dagger</span></span><br><span class="line">        <span class="comment">// create() 方法会帮我们创建一个 ActivityComponent 对象</span></span><br><span class="line">        <span class="comment">// 然后我们就可以调用到 inject 方法</span></span><br><span class="line">        <span class="comment">// 执行在 super.onCreate 之前可以保证最开始就执行注入</span></span><br><span class="line">        DaggerActivityComponent.create().inject(<span class="keyword">this</span>)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">super</span>.onCreate(savedInstanceState)</span><br><span class="line">        setContentView(R.layout.activity_main)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;以上就是 <span class="red">@Component</span> 的基本用法和解释.</p>
+<p>&emsp;&emsp;<span class="red-bold">@Inject 注解</span></p>
+<p>&emsp;&emsp;对于这个注解, 我的理解是, <span class="red">①用来标记需要注入的属性, ②标记 Dagger2 在注入某对象时调用的目标构造方法.</span> 例如如下代码, 演示了一次完整 DI 的过程 :</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 需要自动注入的实体类</span></span><br><span class="line"><span class="comment">// @Inject 标注在该类的构造方法上</span></span><br><span class="line"><span class="comment">// 表示 Dagger 在进行注入时会调用我们标注的构造方法来产生对象</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Student</span> <span class="meta">@Inject</span> <span class="keyword">constructor</span></span>() &#123;</span><br><span class="line">    <span class="keyword">val</span> name: String = <span class="string">"Student-Zhang"</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MainActivity</span> : <span class="type">BaseActivity</span>&lt;<span class="type">MainPresenter</span>&gt;</span>() &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 标注在属性上, 表示该属性交给 Dagger 进行注入</span></span><br><span class="line">    <span class="comment">// 在运行时, Dagger 会自动调用该类 </span></span><br><span class="line">    <span class="comment">// 标注了 @Inject 的构造方法</span></span><br><span class="line">    <span class="comment">// 来产生一个对象并赋值给我们的成员属性</span></span><br><span class="line">    <span class="meta">@Inject</span> <span class="keyword">lateinit</span> <span class="keyword">var</span> student: Student</span><br><span class="line"></span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">onCreate</span><span class="params">(savedInstanceState: <span class="type">Bundle</span>?)</span></span> &#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 这行指定在当前类中使用该次注入</span></span><br><span class="line">        DaggerActivityComponent.create().inject(<span class="keyword">this</span>)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">super</span>.onCreate(savedInstanceState)</span><br><span class="line">        setContentView(R.layout.activity_main)</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 由于已经进行了注入, 所以此处不会报空指针</span></span><br><span class="line">        tv.text = student.name</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;此外, Dagger2 还可以进行传递性 DI, 只要对象之间的关系没有问题即可, 例如下面所示, 演示了一次传递性 DI :</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 拥有空构造器的 Student 类, 支持自动注入</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Student</span> <span class="meta">@Inject</span> <span class="keyword">constructor</span></span>() &#123;</span><br><span class="line">    <span class="keyword">val</span> name: String = <span class="string">"Student-Zhang"</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 拥有参数为 Student 类型构造器的 Person 类</span></span><br><span class="line"><span class="comment">// 并且也支持自动注入</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Person</span> <span class="meta">@Inject</span> <span class="keyword">constructor</span></span>(<span class="keyword">val</span> student: Student)</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MainActivity</span> : <span class="type">BaseActivity</span>&lt;<span class="type">MainPresenter</span>&gt;</span>() &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 直接注入一个 Person 对象</span></span><br><span class="line">    <span class="comment">// Dagger 会先去创建一个 Student 对象</span></span><br><span class="line">    <span class="comment">// 然后用创建好的 Student 对象传入 Person 的构造方法</span></span><br><span class="line">    <span class="comment">// 从而得到一个 Person 对象</span></span><br><span class="line">    <span class="comment">// 进而完成了一次 传递性 DI</span></span><br><span class="line">    <span class="meta">@Inject</span> <span class="keyword">lateinit</span> <span class="keyword">var</span> person: Person</span><br><span class="line"></span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">onCreate</span><span class="params">(savedInstanceState: <span class="type">Bundle</span>?)</span></span> &#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 这行指定在当前类中使用该次注入</span></span><br><span class="line">        DaggerActivityComponent.create().inject(<span class="keyword">this</span>)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">super</span>.onCreate(savedInstanceState)</span><br><span class="line">        setContentView(R.layout.activity_main)</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 由于已经进行了注入, 所以此处不会报空指针</span></span><br><span class="line">        tv.text = person.student.name</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>&emsp;&emsp;<span class="red">由此我们发现, 只要根对象标注了 @Inject, 其他依赖于该对象的类都可以标注 @Inject, 从而完成一次 传递性 DI. 此外, 一定要保证跟对象可以创建出对象, 否则编译会出错. 再有就是, 标注了 @Inject 的属性一定要是非 private 的, 否则无法读取到该属性, 也会导致编译出错, 这主要是因为 Dagger2 不是采用反射机制导致的.</span></p>
+</blockquote>
+<p>&emsp;&emsp;至此, @Inject 与 @Component 注解 便已完全讲述完了.</p>
+<ol start="4">
+<li><h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4></li>
+</ol>
+<p>&emsp;&emsp;根据上述的案例, 我们发现, @Inject 与 @Component 两个注解是相辅相成的, 若少了 @Inject 注解, 我们则无法完成 DI, 若少了 @Component 注解, 我们的 DI 便不知道该往哪个类中执行 DI 操作, 因此二者一定需要紧密结合着来使用.</p>
+<p>&emsp;&emsp;我们还发现 Dagger2 可以进行传递依赖, 这样就能使我们创建对象更加轻松, 将代码中相互依赖的耦合代码全部交给 Dagger 来进行管理, 主要逻辑部分的代码就会减少许多, 这样既方便日后维护, 也方便问题定位, 快速修复 bug.</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Android/" rel="tag"># Android</a>
+              <a href="/tags/Dagger2/" rel="tag"># Dagger2</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2018/12/04/Android-8-0-Only-fullscreen-opaque-activities-can-request-orientation/" rel="prev" title="Android 8.0 Only fullscreen opaque activities can request orientation">
+      <i class="fa fa-chevron-left"></i> Android 8.0 Only fullscreen opaque activities can request orientation
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2018/12/27/Dagger2-%E7%88%AC%E5%9D%91%E8%AE%B0-%E4%BA%8C/" rel="next" title="Dagger2-爬坑记(二)">
+      Dagger2-爬坑记(二) <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#Dagger2-%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">Dagger2 简介</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Gradle-%E9%85%8D%E7%BD%AE%E5%BC%95%E5%85%A5"><span class="nav-number">2.</span> <span class="nav-text">Gradle 配置引入</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Inject-%E4%B8%8E-Component-%E6%B3%A8%E8%A7%A3"><span class="nav-number">3.</span> <span class="nav-text">@Inject 与 @Component 注解</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Lisen</p>
+  <div class="site-description" itemprop="description">是差点运气，可我一直在努力。</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">15</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Lisen</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script src="/live2dw/lib/L2Dwidget.min.js?0c58a1486de42ac6cc1c59c7d98ae887"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"right","width":80,"height":80,"hOffset":60,"vOffset":40},"mobile":{"show":false},"log":false});</script></body>
+</html>

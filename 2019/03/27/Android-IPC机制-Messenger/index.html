@@ -1,37 +1,467 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
 
 
-{% block title %}{{ page.title }} | {{ config.title }}{% endblock %}
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
 
-{% block page_class %}page-post-detail{% endblock %}
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="Android 中的 IPC 机制有很多, 如: Intent 附加 Bundle 数据, Binder, 通过 AIDL 快速实现 Binder, Messenger, ContentProvider, Socket, 共享文件 等等 今天主要聊一聊 Messenger 对象, 一个轻量级的 IPC 实现方案.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android IPC机制-Messenger">
+<meta property="og:url" content="http://yoursite.com/2019/03/27/Android-IPC%E6%9C%BA%E5%88%B6-Messenger/index.html">
+<meta property="og:site_name" content="往后余生">
+<meta property="og:description" content="Android 中的 IPC 机制有很多, 如: Intent 附加 Bundle 数据, Binder, 通过 AIDL 快速实现 Binder, Messenger, ContentProvider, Socket, 共享文件 等等 今天主要聊一聊 Messenger 对象, 一个轻量级的 IPC 实现方案.">
+<meta property="og:locale">
+<meta property="article:published_time" content="2019-03-27T13:25:07.000Z">
+<meta property="article:modified_time" content="2019-04-29T06:38:06.000Z">
+<meta property="article:author" content="Lisen">
+<meta property="article:tag" content="Android">
+<meta property="article:tag" content="IPC">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yoursite.com/2019/03/27/Android-IPC%E6%9C%BA%E5%88%B6-Messenger/">
 
 
-{% block content %}
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
 
-  <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
+  <title>Android IPC机制-Messenger | 往后余生</title>
+  
 
-    <div class="post-spread">
-      {% if theme.jiathis %}
-        {% include '_partials/share/jiathis.swig' %}
-      {% elseif theme.baidushare %}
-        {% include '_partials/share/baidushare.swig' %}
-      {% elseif theme.add_this_id %}
-        {% include '_partials/share/add-this.swig' %}
-      {% elseif theme.duoshuo_shortname and theme.duoshuo_share %}
-        {% include '_partials/share/duoshuo_share.swig' %}
-      {% endif %}
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
     </div>
   </div>
 
-{% endblock %}
+  <div class="site-meta">
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">往后余生</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/27/Android-IPC%E6%9C%BA%E5%88%B6-Messenger/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Lisen">
+      <meta itemprop="description" content="是差点运气，可我一直在努力。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="往后余生">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Android IPC机制-Messenger
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2019-03-27 21:25:07" itemprop="dateCreated datePublished" datetime="2019-03-27T21:25:07+08:00">2019-03-27</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2019-04-29 14:38:06" itemprop="dateModified" datetime="2019-04-29T14:38:06+08:00">2019-04-29</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index"><span itemprop="name">Android</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/IPC/" itemprop="url" rel="index"><span itemprop="name">IPC</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>Android 中的 IPC 机制有很多, 如: Intent 附加 Bundle 数据, Binder, 通过 AIDL 快速实现 Binder, Messenger, ContentProvider, Socket, 共享文件 等等</p>
+<p>今天主要聊一聊 Messenger 对象, 一个轻量级的 IPC 实现方案.</p>
+<a id="more"></a>
+<ol>
+<li><h4 id="剖析-Messenger-对象"><a href="#剖析-Messenger-对象" class="headerlink" title="剖析 Messenger 对象"></a>剖析 Messenger 对象</h4></li>
+</ol>
+<p>&emsp;&emsp;Messenger 译为 送信者, 通过它, 我们可以轻松的在不同进程间传递数据.</p>
+<p>&emsp;&emsp;我们原先在子线程中向 UI 线程发送更新 UI 等消息, 都是通过 <span class="red">Handler.sendMessage()</span> 来发送一个 <span class="red">Message</span> 对象来实现的.</p>
+<blockquote>
+<p>&emsp;&emsp;我们知道在 Message 对象中, 我们可以 <span class="red">通过 what 属性来设置消息类别, obj 属性来携带需要传递的数据</span>, 除此之外我们还可以 <span class="red">通过 setData(Bundle data) 方法来传递带有数据的 Bundle 对象</span>, 借此来传递更多类型的数据给 UI 线程.</p>
+</blockquote>
+<p>&emsp;&emsp;此次, 我们在使用 Messenger 对象来实现 IPC 时, 也是借助 Message 对象来传递我们的数据.</p>
+<p>&emsp;&emsp;Messenger 是一种轻量级的 IPC 实现方案, 我们可以通过该类的源码发现, 它的底层实现就是 AIDL, 通过 AIDL 来实现 Binder 来达到跨进程通信的目的.</p>
+<ol start="2">
+<li><h4 id="使用-Messenger-对象"><a href="#使用-Messenger-对象" class="headerlink" title="使用 Messenger 对象"></a>使用 Messenger 对象</h4></li>
+</ol>
+<p>&emsp;&emsp;Messenger 的使用方式与 Socket 类似, 分为服务器与客户端两方, 与 Socket 不同的是它一次只处理一个请求, 所以它不存在并发执行的问题, 我们也就无需像共享文件一样去处理线程同步的问题了.</p>
+<blockquote>
+<p><span class="red-bold">服务器端</span></p>
+</blockquote>
+<p>&emsp;&emsp;一般我们用 Service 来充当服务器, 我们首先构造一个 Messenger 对象, 在构造方法中传入我们处理消息的自定义 Handler 对象即可, 接下来我们只需要在 Service 的 onBind 方法中将 Messenger 持有的 Binder 对象返回给 客户端 即可.</p>
+<blockquote>
+<p><span class="red-bold">客户端</span></p>
+</blockquote>
+<p>&emsp;&emsp;我们在客户端中绑定服务器端的 Service, 然后利用绑定成功时返回的 IBinder 对象来创建一个 Messenger 对象, 这样我们就可以通过该 Messenger 对象来传递数据给服务器端的 Service 了.</p>
+<ol start="3">
+<li><h4 id="客户端单向发送数据案例"><a href="#客户端单向发送数据案例" class="headerlink" title="客户端单向发送数据案例"></a>客户端单向发送数据案例</h4></li>
+</ol>
+<blockquote>
+<p>首先注册 Service, 让他运行在不同进程中</p>
+</blockquote>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">service</span> <span class="attr">android:name</span>=<span class="string">"test.lisen.service.MessengerService"</span></span></span><br><span class="line"><span class="tag">         <span class="attr">android:process</span>=<span class="string">":remote"</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>服务器端代码</p>
+</blockquote>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MessengerService</span> : <span class="type">Service</span></span>() &#123;</span><br><span class="line">    <span class="keyword">companion</span> <span class="keyword">object</span> &#123;</span><br><span class="line">        <span class="keyword">const</span> <span class="keyword">val</span> TAG = <span class="string">"MessengerService"</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 消息定制</span></span><br><span class="line">        <span class="keyword">const</span> <span class="keyword">val</span> MSG_FROM_CLIENT = <span class="number">100</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 处理客户端消息的自定义 Handler 对象</span></span><br><span class="line">    <span class="class"><span class="keyword">class</span> <span class="title">MessengerHandler</span> : <span class="type">Handler</span></span>() &#123;</span><br><span class="line">        <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">handleMessage</span><span class="params">(msg: <span class="type">Message</span>?)</span></span> &#123;</span><br><span class="line">            <span class="keyword">when</span> (msg?.what) &#123;</span><br><span class="line">                <span class="comment">// 消息从客户端发送来, 则将数据取出</span></span><br><span class="line">                MSG_FROM_CLIENT -&gt; &#123;</span><br><span class="line">                    Log.e(TAG, <span class="string">"msg from client: "</span> + msg.<span class="keyword">data</span>.getString(<span class="string">"msg"</span>))</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">else</span> -&gt; <span class="keyword">super</span>.handleMessage(msg)</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 服务器端的 Messenger 对象, 持有服务器的 Binder</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">val</span> mMessenger:Messenger = Messenger(MessengerHandler())</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 绑定服务时, 直接返回 Messenger 持有的 Binder 给客户端</span></span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">onBind</span><span class="params">(intent: <span class="type">Intent</span>)</span></span>: IBinder = mMessenger.binder</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>客户端代码</p>
+</blockquote>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MainActivity</span> : <span class="type">AppCompatActivity</span></span>() &#123;</span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">onCreate</span><span class="params">(savedInstanceState: <span class="type">Bundle</span>?)</span></span> &#123;</span><br><span class="line">        <span class="keyword">super</span>.onCreate(savedInstanceState)</span><br><span class="line">        setContentView(R.layout.activity_main)</span><br><span class="line"></span><br><span class="line">        <span class="comment">// bindService</span></span><br><span class="line">        <span class="keyword">val</span> intent = Intent(<span class="keyword">this</span>, MessengerService::<span class="class"><span class="keyword">class</span>.<span class="title">java</span>)</span></span><br><span class="line">        bindService(intent, mConnection, Context.BIND_AUTO_CREATE)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">onDestroy</span><span class="params">()</span></span> &#123;</span><br><span class="line">        unbindService(mConnection)</span><br><span class="line">        <span class="keyword">super</span>.onDestroy()</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 用于与服务器端通信的 Messenger</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">lateinit</span> <span class="keyword">var</span> mServer: Messenger</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">val</span> mConnection: ServiceConnection = <span class="keyword">object</span> : ServiceConnection &#123;</span><br><span class="line">        <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">onServiceConnected</span><span class="params">(name: <span class="type">ComponentName</span>?, service: <span class="type">IBinder</span>?)</span></span> &#123;</span><br><span class="line">            <span class="comment">// 利用服务器传来的 IBinder 对象创建 Messenger</span></span><br><span class="line">            mServer = Messenger(service)</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 构建 Message 对象, 用于存储发送的数据</span></span><br><span class="line">            <span class="keyword">val</span> msg = Message.obtain()</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 真实数据存于 Bundle 对象中</span></span><br><span class="line">            <span class="keyword">val</span> <span class="keyword">data</span> = Bundle()</span><br><span class="line">            <span class="keyword">data</span>.putString(<span class="string">"msg"</span>, <span class="string">"hello, this msg is from client"</span>)</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 指定消息类型与数据</span></span><br><span class="line">            msg.what = MessengerService.MSG_FROM_CLIENT</span><br><span class="line">            msg.<span class="keyword">data</span> = <span class="keyword">data</span></span><br><span class="line"></span><br><span class="line">            <span class="comment">// 通过服务器端 Messenger 对象发送数据到服务器</span></span><br><span class="line">            mServer.send(msg)</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">onServiceDisconnected</span><span class="params">(name: <span class="type">ComponentName</span>?)</span></span> &#123; &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;执行后, 服务器的 Handler 对象会接收到消息, 然后取出对应的数据, 并打印 log</p>
+<ol start="4">
+<li><h4 id="双向通讯案例"><a href="#双向通讯案例" class="headerlink" title="双向通讯案例"></a>双向通讯案例</h4></li>
+</ol>
+<p>&emsp;&emsp;与单向不同, 单向的案例是只有服务器能够接收并处理消息, 客户端若是也想接收并处理消息, 就也需要自定义处理消息的 Handler 类, 然后与服务器一样, 借助该 Handler 对象来构建一个 Messenger 对象, 再借助 Message.replyTo 属性, 将自己的 Messenger 对象传递给服务器, 服务器就可以通过该 Messenger 对象来向客户端发送消息了.</p>
+<blockquote>
+<p>服务器端代码</p>
+</blockquote>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MessengerService</span> : <span class="type">Service</span></span>() &#123;</span><br><span class="line">    <span class="keyword">companion</span> <span class="keyword">object</span> &#123;</span><br><span class="line">        <span class="keyword">const</span> <span class="keyword">val</span> TAG = <span class="string">"MessengerService"</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 消息定制</span></span><br><span class="line">        <span class="keyword">const</span> <span class="keyword">val</span> MSG_FROM_CLIENT = <span class="number">100</span></span><br><span class="line">        <span class="keyword">const</span> <span class="keyword">val</span> MSG_FROM_SERVICE = <span class="number">200</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 处理客户端消息的自定义 Handler 对象</span></span><br><span class="line">    <span class="class"><span class="keyword">class</span> <span class="title">MessengerHandler</span> : <span class="type">Handler</span></span>() &#123;</span><br><span class="line">        <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">handleMessage</span><span class="params">(msg: <span class="type">Message</span>?)</span></span> &#123;</span><br><span class="line">            <span class="keyword">when</span> (msg?.what) &#123;</span><br><span class="line">                <span class="comment">// 消息从客户端发送来, 则将数据取出</span></span><br><span class="line">                MSG_FROM_CLIENT -&gt; &#123;</span><br><span class="line">                    Log.e(TAG, <span class="string">"msg from client: "</span> + msg.<span class="keyword">data</span>.getString(<span class="string">"msg"</span>))</span><br><span class="line"></span><br><span class="line">                    <span class="comment">// 通过 Message 的 replyTo 获取到与客户端联系的 Messenger 对象</span></span><br><span class="line">                    <span class="keyword">val</span> client = msg.replyTo</span><br><span class="line"></span><br><span class="line">                    <span class="comment">// 构建 Message 对象, 用于存储发送的数据</span></span><br><span class="line">                    <span class="keyword">val</span> replyMsg = Message.obtain(<span class="literal">null</span>, MSG_FROM_SERVICE)</span><br><span class="line"></span><br><span class="line">                    <span class="comment">// 真实数据存于 Bundle 对象中</span></span><br><span class="line">                    <span class="keyword">val</span> <span class="keyword">data</span> = Bundle()</span><br><span class="line">                    <span class="keyword">data</span>.putString(<span class="string">"data"</span>, <span class="string">"this msg is from server"</span>)</span><br><span class="line"></span><br><span class="line">                    <span class="comment">// 指定消息类型与数据</span></span><br><span class="line">                    replyMsg.<span class="keyword">data</span> = <span class="keyword">data</span></span><br><span class="line"></span><br><span class="line">                    <span class="comment">// 通过客户端 Messenger 对象发送数据到服务器</span></span><br><span class="line">                    client.send(replyMsg)</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">else</span> -&gt; <span class="keyword">super</span>.handleMessage(msg)</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 服务器端的 Messenger 对象, 持有服务器的 Binder</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">val</span> mMessenger:Messenger = Messenger(MessengerHandler())</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 绑定服务时, 直接返回 Messenger 持有的 Binder 给客户端</span></span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">onBind</span><span class="params">(intent: <span class="type">Intent</span>)</span></span>: IBinder = mMessenger.binder</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>客户端代码</p>
+</blockquote>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MainActivity</span> : <span class="type">AppCompatActivity</span></span>() &#123;</span><br><span class="line">    <span class="keyword">companion</span> <span class="keyword">object</span> &#123;</span><br><span class="line">        <span class="keyword">const</span> <span class="keyword">val</span> TAG = <span class="string">"MainActivity"</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">onCreate</span><span class="params">(savedInstanceState: <span class="type">Bundle</span>?)</span></span> &#123;</span><br><span class="line">        <span class="keyword">super</span>.onCreate(savedInstanceState)</span><br><span class="line">        setContentView(R.layout.activity_main)</span><br><span class="line"></span><br><span class="line">        <span class="comment">// bindService</span></span><br><span class="line">        <span class="keyword">val</span> intent = Intent(<span class="keyword">this</span>, MessengerService::<span class="class"><span class="keyword">class</span>.<span class="title">java</span>)</span></span><br><span class="line">        bindService(intent, mConnection, Context.BIND_AUTO_CREATE)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">onDestroy</span><span class="params">()</span></span> &#123;</span><br><span class="line">        unbindService(mConnection)</span><br><span class="line">        <span class="keyword">super</span>.onDestroy()</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 用于与服务器端通信的 Messenger</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">lateinit</span> <span class="keyword">var</span> mServer: Messenger</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 客户端的 Messenger 对象, 传给服务器可让服务器与自己通讯</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">val</span> mClient = Messenger(MessengerHandler())</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 处理服务器端消息的自定义 Handler 对象</span></span><br><span class="line">    <span class="class"><span class="keyword">class</span> <span class="title">MessengerHandler</span> : <span class="type">Handler</span></span>() &#123;</span><br><span class="line">        <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">handleMessage</span><span class="params">(msg: <span class="type">Message</span>?)</span></span> &#123;</span><br><span class="line">            <span class="keyword">when</span> (msg?.what) &#123;</span><br><span class="line">                <span class="comment">// 消息从服务器端发送来, 则将数据取出</span></span><br><span class="line">                MessengerService.MSG_FROM_SERVICE -&gt; &#123;</span><br><span class="line">                    Log.e(TAG, <span class="string">"msg from server: "</span> + msg.<span class="keyword">data</span>.getString(<span class="string">"data"</span>))</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">else</span> -&gt; <span class="keyword">super</span>.handleMessage(msg)</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">val</span> mConnection: ServiceConnection = <span class="keyword">object</span> : ServiceConnection &#123;</span><br><span class="line">        <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">onServiceConnected</span><span class="params">(name: <span class="type">ComponentName</span>?, service: <span class="type">IBinder</span>?)</span></span> &#123;</span><br><span class="line">            <span class="comment">// 利用服务器传来的 IBinder 对象创建 Messenger</span></span><br><span class="line">            mServer = Messenger(service)</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 构建 Message 对象, 用于存储发送的数据</span></span><br><span class="line">            <span class="keyword">val</span> msg = Message.obtain()</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 真实数据存于 Bundle 对象中</span></span><br><span class="line">            <span class="keyword">val</span> <span class="keyword">data</span> = Bundle()</span><br><span class="line">            <span class="keyword">data</span>.putString(<span class="string">"msg"</span>, <span class="string">"hello, this msg is from client"</span>)</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 指定消息类型与数据</span></span><br><span class="line">            msg.what = MessengerService.MSG_FROM_CLIENT</span><br><span class="line">            msg.<span class="keyword">data</span> = <span class="keyword">data</span></span><br><span class="line"></span><br><span class="line">            <span class="comment">// 发送消息前, 将自己的 Messenger 对象也传递给服务器</span></span><br><span class="line">            msg.replyTo = mClient</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 通过服务器端 Messenger 对象发送数据到服务器</span></span><br><span class="line">            mServer.send(msg)</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">onServiceDisconnected</span><span class="params">(name: <span class="type">ComponentName</span>?)</span></span> &#123; &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;执行后, 服务器的 Handler 对象会接收到消息, 然后取出对应的数据, 并打印 log, 客户端的 Handler 对象也能接收到服务器传递过来的数据, 并打印 log.</p>
+<ol start="4">
+<li><h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4></li>
+</ol>
+<p>&emsp;&emsp;至此, Messenger 的使用方法已展现完毕, 总的来说还是比较简单的, 基于 AIDL 的轻量封装, 使得我们使用起来也非常的方便. 今后我们再探讨别的 IPC 通讯机制.</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Android/" rel="tag"># Android</a>
+              <a href="/tags/IPC/" rel="tag"># IPC</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2019/03/20/jcenter-%E4%BB%93%E5%BA%93%E8%BF%87%E6%85%A2%E6%88%96%E5%AE%95%E6%9C%BA%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/" rel="prev" title="jcenter 仓库过慢或宕机解决方案">
+      <i class="fa fa-chevron-left"></i> jcenter 仓库过慢或宕机解决方案
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2019/04/29/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-%E6%95%B0%E7%BB%84/" rel="next" title="数据结构-数组">
+      数据结构-数组 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%89%96%E6%9E%90-Messenger-%E5%AF%B9%E8%B1%A1"><span class="nav-number">1.</span> <span class="nav-text">剖析 Messenger 对象</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8-Messenger-%E5%AF%B9%E8%B1%A1"><span class="nav-number">2.</span> <span class="nav-text">使用 Messenger 对象</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%8D%95%E5%90%91%E5%8F%91%E9%80%81%E6%95%B0%E6%8D%AE%E6%A1%88%E4%BE%8B"><span class="nav-number">3.</span> <span class="nav-text">客户端单向发送数据案例</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8F%8C%E5%90%91%E9%80%9A%E8%AE%AF%E6%A1%88%E4%BE%8B"><span class="nav-number">4.</span> <span class="nav-text">双向通讯案例</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Lisen</p>
+  <div class="site-description" itemprop="description">是差点运气，可我一直在努力。</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">15</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Lisen</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script src="/live2dw/lib/L2Dwidget.min.js?0c58a1486de42ac6cc1c59c7d98ae887"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"right","width":80,"height":80,"hOffset":60,"vOffset":40},"mobile":{"show":false},"log":false});</script></body>
+</html>
